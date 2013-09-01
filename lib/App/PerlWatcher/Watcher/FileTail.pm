@@ -1,6 +1,6 @@
 package App::PerlWatcher::Watcher::FileTail;
 {
-  $App::PerlWatcher::Watcher::FileTail::VERSION = '0.15';
+  $App::PerlWatcher::Watcher::FileTail::VERSION = '0.16';
 }
 # ABSTRACT: Watches for changes file and outputs new added lines (a-la 'tail -f')
 
@@ -20,6 +20,8 @@ use App::PerlWatcher::EventItem;
 use App::PerlWatcher::Levels;
 use aliased 'App::PerlWatcher::Status';
 use App::PerlWatcher::Watcher;
+
+
 
 
 has 'file'          => ( is => 'ro', required => 1);
@@ -44,6 +46,18 @@ sub _build_inotify {
     return $inotify;
 }
 
+sub build_watcher_guard {
+    my $self = shift;
+    return AnyEvent->io(
+        fh   => $self->inotify->fileno,
+        poll => 'r',
+        cb   => sub {
+            $self->inotify->poll
+              if $self->active;
+        },
+    );
+}
+
 sub start {
     my ($self, $callback) = @_;
     $self->callback($callback) if $callback;
@@ -63,6 +77,7 @@ sub start {
 
     eval {
         $self->_try_start;
+        $self->watcher_guard( $self->build_watcher_guard );
     };
     $fail_start->($@) if($@);
 }
@@ -99,15 +114,6 @@ sub _try_start {
                 },
             );
         }
-    );
-
-    $self->{_w} = AnyEvent->io(
-        fh   => $self->inotify->fileno,
-        poll => 'r',
-        cb   => sub {
-            $self->inotify->poll
-              if defined( $self->{_w} );
-        },
     );
 }
 
@@ -179,7 +185,25 @@ App::PerlWatcher::Watcher::FileTail - Watches for changes file and outputs new a
 
 =head1 VERSION
 
-version 0.15
+version 0.16
+
+=head1 SYNOPSIS
+
+Use the following config for Engine to monitor file changes online:
+
+        {
+            class => 'App::PerlWatcher::Watcher::FileTail',
+            config => {
+                file            =>  '/var/log/messages',
+                lines_number    =>  10,
+                filter          => sub { $_ !~ /\scron/ },
+            },
+        },
+
+=head1 DESCRIPTION
+
+The more detailed description of PerlWatcher application can be found here:
+L<https://github.com/basiliscos/perl-watcher>.
 
 =head1 ATTRIBUTES
 

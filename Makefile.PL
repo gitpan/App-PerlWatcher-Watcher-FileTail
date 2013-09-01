@@ -2,9 +2,9 @@
 use strict;
 use warnings;
 
+use 5.012;
 
-
-use ExtUtils::MakeMaker 6.30;
+use ExtUtils::MakeMaker 6.72;
 
 
 
@@ -13,7 +13,7 @@ my %WriteMakefileArgs = (
   "AUTHOR" => "Ivan Baidakou <dmol\@gmx.com>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.30"
+    "ExtUtils::MakeMaker" => "6.72"
   },
   "DISTNAME" => "App-PerlWatcher-Watcher-FileTail",
   "EXE_FILES" => [],
@@ -21,7 +21,7 @@ my %WriteMakefileArgs = (
   "NAME" => "App::PerlWatcher::Watcher::FileTail",
   "PREREQ_PM" => {
     "AnyEvent" => "7.04",
-    "App::PerlWatcher::Engine" => "0.14",
+    "App::PerlWatcher::Engine" => "0.15",
     "Devel::Comments" => "v1.1.4",
     "File::ReadBackwards" => "1.05",
     "Linux::Inotify2" => "1.22",
@@ -33,7 +33,7 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "Test::More" => "0.98"
   },
-  "VERSION" => "0.15",
+  "VERSION" => "0.16",
   "test" => {
     "TESTS" => "t/*.t"
   }
