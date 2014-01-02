@@ -1,6 +1,6 @@
 package App::PerlWatcher::Watcher::FileTail;
 {
-  $App::PerlWatcher::Watcher::FileTail::VERSION = '0.17';
+  $App::PerlWatcher::Watcher::FileTail::VERSION = '0.18';
 }
 # ABSTRACT: Watches for changes file and outputs new added lines (a-la 'tail -f')
 
@@ -37,6 +37,9 @@ has 'inotify'       => ( is => 'lazy' );
 
 
 has 'events'        => ( is => 'lazy', default => sub { [] } );
+
+
+has 'reverse' => ( is => 'lazy', default => sub{ 0 });
 
 with qw/App::PerlWatcher::Watcher/;
 
@@ -124,6 +127,19 @@ sub description {
     return "FileWatcher [" . $self->file . "]";
 }
 
+sub _add_item {
+    my ($self, $item) = @_;
+    my $events = $self->events;
+    if (! $self->reverse) {
+        push @$events, $item;
+        shift @$events if @$events > $self->lines_number;
+    }
+    else {
+        unshift @$events, $item;
+        pop @$events if @$events > $self->lines_number;
+    }
+}
+
 sub _add_line {
     my ( $self, $line ) = @_;
     if ( defined $line ) {
@@ -133,10 +149,7 @@ sub _add_line {
                 content     => $line,
                 timestamp   => 0,
             );
-            # $line
-            my $evens_queue = $self->events;
-            push @$evens_queue, $event_item;
-            shift @$evens_queue if @$evens_queue > $self->lines_number;
+            $self->_add_item($event_item);
             $self->_trigger_callback;
         }
     }
@@ -182,13 +195,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 App::PerlWatcher::Watcher::FileTail - Watches for changes file and outputs new added lines (a-la 'tail -f')
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 SYNOPSIS
 
@@ -235,13 +250,20 @@ The inotify object
 
 All gathered lines
 
+=head2 reverse
+
+Emits lines in revers order, like tail -f, i.e. the new ones come
+at the top.
+
+Default value: false
+
 =head1 AUTHOR
 
 Ivan Baidakou <dmol@gmx.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Ivan Baidakou.
+This software is copyright (c) 2014 by Ivan Baidakou.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

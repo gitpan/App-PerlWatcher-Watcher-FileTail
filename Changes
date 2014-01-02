@@ -1,3 +1,9 @@
+0.18      2014-01-02 23:57:59 Europe/Minsk
+    Added 'reverse' property to FileWatcher to emit lines in reverse 
+        order (a-la tail -f behavior)
+    Reflect latest changes in A:P:E
+
+
 0.17      2013-12-23 01:53:25 Europe/Minsk
     Reflect latest changes in Engine
 
